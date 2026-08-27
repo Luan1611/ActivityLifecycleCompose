@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.ifsp.scl.prdm.sc3029531.activitylifecyclecompose.ui.theme.ActivityLifecycleComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,25 +43,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var age = rememberSaveable {  mutableStateOf("")} // é uma variável de estado (guarda o estado do objeto)
+fun MainScreen(modifier: Modifier = Modifier, mainViewModel: MainViewModel = viewModel()) {
+    val uiState by mainViewModel.uiState.collectAsState()
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         TextField(
-            value = name,
+            value = uiState.name,
             label = {Text("Name")},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             modifier = Modifier.fillMaxWidth(),
-            onValueChange = {name = it}
+            onValueChange = {mainViewModel.updateName(it)}
         )
         TextField(
-            value = age.value,
+            value = uiState.age.toString(),
             label = {Text("Age")},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            onValueChange = {age.value = it}
+            onValueChange = {mainViewModel.updateAge(it.toIntOrNull())}
         )
     }
 
